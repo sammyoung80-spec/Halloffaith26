@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
@@ -312,66 +314,69 @@ export default function ChurchWebsite() {
 
   // Load and sync dynamic Events, Site Content, Gallery & Sermons state
   useEffect(() => {
-    const loadState = () => {
-      const savedEvents = localStorage.getItem("hof_events");
-      if (savedEvents) {
-        setEvents(JSON.parse(savedEvents));
-      } else {
-        const defaultEvents = [
-          {
-            id: "1",
-            title: "Supernatural Turnaround Conference",
-            date: "2026-07-12T08:00:00",
-            desc: "Three days of prophetic declarations, deliverance, and restoration. Join us!",
-            type: "Conference",
-          },
-          {
-            id: "2",
-            title: "Worship & Miracle Night",
-            date: "2026-07-24T18:00:00",
-            desc: "An atmospheric night of pure worship, healing, and miraculous encounters with Jesus.",
-            type: "Special Service",
-          },
-          {
-            id: "3",
-            title: "Ojodu Berger Mega Crusade",
-            date: "2026-08-15T17:00:00",
-            desc: "Reaching Ojodu-Berger with the light of the Gospel. Lives will be transformed.",
-            type: "Crusade",
-          },
-        ];
-        setEvents(defaultEvents);
-        localStorage.setItem("hof_events", JSON.stringify(defaultEvents));
-      }
+    const loadFromFirestore = async () => {
+      try {
+        // Events
+        const eventsSnap = await getDoc(doc(db, "site", "events"));
+        if (eventsSnap.exists()) {
+          setEvents(eventsSnap.data().items || []);
+        } else {
+          const defaultEvents = [
+            {
+              id: "1",
+              title: "Supernatural Turnaround Conference",
+              date: "2026-07-12T08:00:00",
+              desc: "Three days of prophetic declarations, deliverance, and restoration. Join us!",
+              type: "Conference",
+            },
+            {
+              id: "2",
+              title: "Worship & Miracle Night",
+              date: "2026-07-24T18:00:00",
+              desc: "An atmospheric night of pure worship, healing, and miraculous encounters with Jesus.",
+              type: "Special Service",
+            },
+            {
+              id: "3",
+              title: "Ojodu Berger Mega Crusade",
+              date: "2026-08-15T17:00:00",
+              desc: "Reaching Ojodu-Berger with the light of the Gospel. Lives will be transformed.",
+              type: "Crusade",
+            },
+          ];
+          setEvents(defaultEvents);
+          await setDoc(doc(db, "site", "events"), { items: defaultEvents });
+        }
 
-      const savedContent = localStorage.getItem("hof_site_content");
-      if (savedContent) {
-        setSiteContent(JSON.parse(savedContent));
-      } else {
-        localStorage.setItem("hof_site_content", JSON.stringify(DEFAULT_CONTENT));
-      }
+        // Site Content
+        const contentSnap = await getDoc(doc(db, "site", "content"));
+        if (contentSnap.exists()) {
+          setSiteContent(contentSnap.data() as typeof DEFAULT_CONTENT);
+        } else {
+          await setDoc(doc(db, "site", "content"), DEFAULT_CONTENT);
+        }
 
-      // Gallery
-      const savedGallery = localStorage.getItem("hof_gallery");
-      if (savedGallery) {
-        setGalleryItems(JSON.parse(savedGallery));
-      } else {
-        localStorage.setItem("hof_gallery", JSON.stringify(DEFAULT_GALLERY));
-      }
+        // Gallery
+        const gallerySnap = await getDoc(doc(db, "site", "gallery"));
+        if (gallerySnap.exists()) {
+          setGalleryItems(gallerySnap.data().items || []);
+        } else {
+          await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+        }
 
-      // Sermons
-      const savedSermons = localStorage.getItem("hof_sermons");
-      if (savedSermons) {
-        setSermonsList(JSON.parse(savedSermons));
-      } else {
-        localStorage.setItem("hof_sermons", JSON.stringify(DEFAULT_SERMONS));
+        // Sermons
+        const sermonsSnap = await getDoc(doc(db, "site", "sermons"));
+        if (sermonsSnap.exists()) {
+          setSermonsList(sermonsSnap.data().items || []);
+        } else {
+          await setDoc(doc(db, "site", "sermons"), { items: DEFAULT_SERMONS });
+        }
+      } catch (error) {
+        console.error("Error loading from Firestore:", error);
       }
     };
 
-    loadState();
-    // Re-check for local storage updates periodically
-    const timer = setInterval(loadState, 3000);
-    return () => clearInterval(timer);
+    loadFromFirestore();
   }, []);
 
   // Countdown timer logic
@@ -399,7 +404,7 @@ export default function ChurchWebsite() {
     return () => clearInterval(interval);
   }, [events]);
 
-  const handlePrayerSubmit = (e: React.FormEvent) => {
+  const handlePrayerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newRequest = {
       id: Date.now().toString(),
@@ -411,10 +416,14 @@ export default function ChurchWebsite() {
       resolved: false,
     };
 
-    const saved = localStorage.getItem("hof_prayers");
-    const prayers = saved ? JSON.parse(saved) : [];
-    prayers.push(newRequest);
-    localStorage.setItem("hof_prayers", JSON.stringify(prayers));
+    try {
+      const prayersSnap = await getDoc(doc(db, "site", "prayers"));
+      const prayers = prayersSnap.exists() ? prayersSnap.data().items || [] : [];
+      prayers.push(newRequest);
+      await setDoc(doc(db, "site", "prayers"), { items: prayers });
+    } catch (error) {
+      console.error("Error saving prayer:", error);
+    }
 
     setPrayerSuccess(true);
     setTimeout(() => {

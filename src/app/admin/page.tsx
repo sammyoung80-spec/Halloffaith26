@@ -17,6 +17,8 @@ import {
   FaCheckCircle,
   FaTimes,
 } from "react-icons/fa";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 /* ───────────────────── INTERFACES ───────────────────── */
 
@@ -312,48 +314,55 @@ export default function AdminDashboard() {
     reader.readAsDataURL(file);
   };
 
-  /* ══════════════════════ LOAD FROM LOCALSTORAGE ══════════════════════ */
+  /* ══════════════════════ LOAD FROM FIRESTORE ══════════════════════ */
 
   useEffect(() => {
-    // Prayers
-    const savedPrayers = localStorage.getItem("hof_prayers");
-    if (savedPrayers) setPrayers(JSON.parse(savedPrayers));
+    const loadFromFirestore = async () => {
+      try {
+        // Prayers
+        const prayersSnap = await getDoc(doc(db, "site", "prayers"));
+        if (prayersSnap.exists()) setPrayers(prayersSnap.data().items || []);
 
-    // Events
-    const savedEvents = localStorage.getItem("hof_events");
-    if (savedEvents) setEvents(JSON.parse(savedEvents));
+        // Events
+        const eventsSnap = await getDoc(doc(db, "site", "events"));
+        if (eventsSnap.exists()) setEvents(eventsSnap.data().items || []);
 
-    // Site Content
-    const savedContent = localStorage.getItem("hof_site_content");
-    if (savedContent) {
-      const parsed = JSON.parse(savedContent) as SiteContent;
-      setSiteContent(parsed);
-      syncDraftsFromContent(parsed);
-    } else {
-      localStorage.setItem("hof_site_content", JSON.stringify(DEFAULT_CONTENT));
-      syncDraftsFromContent(DEFAULT_CONTENT);
-    }
+        // Site Content
+        const contentSnap = await getDoc(doc(db, "site", "content"));
+        if (contentSnap.exists()) {
+          const parsed = contentSnap.data() as SiteContent;
+          setSiteContent(parsed);
+          syncDraftsFromContent(parsed);
+        } else {
+          await setDoc(doc(db, "site", "content"), DEFAULT_CONTENT);
+          syncDraftsFromContent(DEFAULT_CONTENT);
+        }
 
-    // Gallery
-    const savedGallery = localStorage.getItem("hof_gallery");
-    if (savedGallery) {
-      setGallery(JSON.parse(savedGallery));
-    } else {
-      localStorage.setItem("hof_gallery", JSON.stringify(DEFAULT_GALLERY));
-    }
+        // Gallery
+        const gallerySnap = await getDoc(doc(db, "site", "gallery"));
+        if (gallerySnap.exists()) {
+          setGallery(gallerySnap.data().items || []);
+        } else {
+          await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+        }
 
-    // Sermons
-    const savedSermons = localStorage.getItem("hof_sermons");
-    if (savedSermons) {
-      setSermons(JSON.parse(savedSermons));
-    } else {
-      localStorage.setItem("hof_sermons", JSON.stringify(DEFAULT_SERMONS));
-    }
+        // Sermons
+        const sermonsSnap = await getDoc(doc(db, "site", "sermons"));
+        if (sermonsSnap.exists()) {
+          setSermons(sermonsSnap.data().items || []);
+        } else {
+          await setDoc(doc(db, "site", "sermons"), { items: DEFAULT_SERMONS });
+        }
+      } catch (error) {
+        console.error("Error loading from Firestore:", error);
+      }
 
-    // Auth
-    if (sessionStorage.getItem("hof_admin_auth") === "true") {
-      setIsAuthenticated(true);
-    }
+      // Auth
+      if (sessionStorage.getItem("hof_admin_auth") === "true") {
+        setIsAuthenticated(true);
+      }
+    };
+    loadFromFirestore();
   }, []);
 
   /* ── Helper to sync all drafts from a SiteContent object ── */
@@ -394,114 +403,114 @@ export default function AdminDashboard() {
 
   /* ══════════════════════ PRAYERS ══════════════════════ */
 
-  const handleResolvePrayer = (id: string) => {
+  const handleResolvePrayer = async (id: string) => {
     const updated = prayers.map((p) => (p.id === id ? { ...p, resolved: !p.resolved } : p));
     setPrayers(updated);
-    localStorage.setItem("hof_prayers", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "prayers"), { items: updated });
   };
 
-  const handleDeletePrayer = (id: string) => {
+  const handleDeletePrayer = async (id: string) => {
     const updated = prayers.filter((p) => p.id !== id);
     setPrayers(updated);
-    localStorage.setItem("hof_prayers", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "prayers"), { items: updated });
   };
 
   /* ══════════════════════ EVENTS ══════════════════════ */
 
-  const handleAddEvent = (e: React.FormEvent) => {
+  const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEvent.title || !newEvent.date || !newEvent.desc) return;
     const item: EventItem = { id: Date.now().toString(), ...newEvent };
     const updated = [...events, item];
     setEvents(updated);
-    localStorage.setItem("hof_events", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "events"), { items: updated });
     setNewEvent({ title: "", date: "", desc: "", type: "Special Service" });
     showToast("Event created successfully!");
   };
 
-  const handleDeleteEvent = (id: string) => {
+  const handleDeleteEvent = async (id: string) => {
     const updated = events.filter((e) => e.id !== id);
     setEvents(updated);
-    localStorage.setItem("hof_events", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "events"), { items: updated });
   };
 
   /* ══════════════════════ SAVE CONTENT SECTIONS ══════════════════════ */
 
-  const saveHero = () => {
+  const saveHero = async () => {
     const updated = { ...siteContent, ...draftHero };
     setSiteContent(updated);
-    localStorage.setItem("hof_site_content", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "content"), updated);
     showToast("Hero & Branding section saved!");
   };
 
-  const saveAbout = () => {
+  const saveAbout = async () => {
     const updated = { ...siteContent, ...draftAbout };
     setSiteContent(updated);
-    localStorage.setItem("hof_site_content", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "content"), updated);
     showToast("About Us section saved!");
   };
 
-  const saveMVP = () => {
+  const saveMVP = async () => {
     const updated = { ...siteContent, ...draftMVP };
     try {
-      localStorage.setItem("hof_site_content", JSON.stringify(updated));
+      await setDoc(doc(db, "site", "content"), updated);
       setSiteContent(updated);
       showToast("Mission, Vision & Pastor saved!");
     } catch (error) {
       console.error(error);
-      alert("Storage quota exceeded! The pastor image or content might be too large.");
+      alert("Error saving to database. Please try again.");
     }
   };
 
-  const saveStats = () => {
+  const saveStats = async () => {
     const updated = { ...siteContent, ...draftStats };
     setSiteContent(updated);
-    localStorage.setItem("hof_site_content", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "content"), updated);
     showToast("Counters & Service Timings saved!");
   };
 
   /* ══════════════════════ GALLERY MANAGEMENT ══════════════════════ */
 
-  const handleAddPhoto = (e: React.FormEvent) => {
+  const handleAddPhoto = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPhoto.src || !newPhoto.title) return;
     const item: GalleryItem = { id: Date.now().toString(), ...newPhoto };
     const updated = [...gallery, item];
     try {
-      localStorage.setItem("hof_gallery", JSON.stringify(updated));
+      await setDoc(doc(db, "site", "gallery"), { items: updated });
       setGallery(updated);
       setNewPhoto({ src: "", title: "", cat: "Worship" });
       showToast("Photo added to gallery!");
     } catch (error) {
       console.error(error);
-      alert("Storage quota exceeded! Please remove some old photos before adding new ones. LocalStorage has a ~5MB limit.");
+      alert("Error saving photo. The image might be too large for the database.");
     }
   };
 
-  const handleDeletePhoto = (id: string) => {
+  const handleDeletePhoto = async (id: string) => {
     const updated = gallery.filter((g) => g.id !== id);
     setGallery(updated);
-    localStorage.setItem("hof_gallery", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "gallery"), { items: updated });
     showToast("Photo removed from gallery.");
   };
 
   /* ══════════════════════ SERMONS MANAGEMENT ══════════════════════ */
 
-  const handleAddSermon = (e: React.FormEvent) => {
+  const handleAddSermon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSermon.title || !newSermon.embed) return;
     const item: SermonItem = { id: Date.now().toString(), ...newSermon };
     const updated = [item, ...sermons]; // Newest first
     setSermons(updated);
-    localStorage.setItem("hof_sermons", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "sermons"), { items: updated });
     setNewSermon({ title: "", speaker: "Pastor Abraham Okoye", date: "", embed: "", category: "Faith" });
     showToast("Sermon/Video added successfully!");
   };
 
-  const handleDeleteSermon = (id: string) => {
+  const handleDeleteSermon = async (id: string) => {
     const updated = sermons.filter((s) => s.id !== id);
     setSermons(updated);
-    localStorage.setItem("hof_sermons", JSON.stringify(updated));
+    await setDoc(doc(db, "site", "sermons"), { items: updated });
     showToast("Sermon/Video removed.");
   };
 
