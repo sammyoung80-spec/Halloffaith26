@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #0A1E5E;
+    --color-navy: #07122D;
+    --color-gold: #D4AF37;
+    --color-gold-glow: rgba(212, 175, 55, 0.15);
+  }
+
+  body {
+    font-family: var(--font-inter), sans-serif;
+    background-color: var(--color-navy);
+    color: #ffffff;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-cinzel), var(--font-playfair), serif;
+  }
+}
+
+/* Custom animations & premium visual styles */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gold-shimmer {
+  background: linear-gradient(90deg, #D4AF37 25%, #FFF099 50%, #D4AF37 75%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(7, 18, 45, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.glass-panel-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(10, 30, 94, 0.45);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+  transform: translateY(-4px);
+}
