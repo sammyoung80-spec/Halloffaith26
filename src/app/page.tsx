@@ -558,10 +558,32 @@ export default function ChurchWebsite() {
       <section
         id="hero"
         ref={heroRef}
-        className="relative h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden pt-20"
+        className="relative h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden pt-20 bg-[#07122D]"
       >
+        {/* Animated Background Image */}
+        <motion.div 
+          className="absolute inset-0 z-0"
+          animate={{
+            scale: [1, 1.08, 1],
+            y: [0, -20, 0]
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <Image
+            src="/hero-bg.jpg"
+            alt="Angel Background"
+            fill
+            priority
+            className="object-cover opacity-25 mix-blend-lighten"
+          />
+        </motion.div>
+
         <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#07122D]/40 to-[#07122D] z-1" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#07122D]/60 to-[#07122D] z-1" />
 
         <div className="relative z-10 max-w-4xl mx-auto space-y-6">
           <motion.div
