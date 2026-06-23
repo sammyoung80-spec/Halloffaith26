@@ -1650,7 +1650,7 @@ export default function ChurchWebsite() {
             <a href="#" className="hover:underline">Terms of Service</a>
           </div>
           <p className="flex-1 text-center md:text-right">
-            SITE DONATED BY <a href="https://www.didsystemsinc.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] transition-colors font-semibold">DIDS' SYSTEMS INC.</a>
+            SITE DONATED BY <a href="https://www.didsystemsinc.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] transition-colors font-semibold">DIDS&apos; SYSTEMS INC.</a>
           </p>
         </div>
       </footer>

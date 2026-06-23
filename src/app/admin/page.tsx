@@ -858,7 +858,7 @@ export default function AdminDashboard() {
               </h3>
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <label className={labelClass}>Pastor's Name</label>
+                  <label className={labelClass}>Pastor&apos;s Name</label>
                   <input
                     type="text"
                     value={draftMVP.pastorName}
@@ -869,7 +869,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className={labelClass}>Pastor's Photo</label>
+                  <label className={labelClass}>Pastor&apos;s Photo</label>
                   {draftMVP.pastorImage ? (
                     <div className="relative rounded-xl overflow-hidden border border-[#D4AF37]/30 bg-[#0A1E5E]/20">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
