@@ -92,7 +92,7 @@ const DEFAULT_CONTENT: SiteContent = {
   vision:
     "Building a global community of strong believers empowered to impact generations through faith, excellence, holiness, and community service.",
   pastorBio:
-    "Pastor Abraham Okoye is a visionary leader called to empower generations and build faith in the heart of people. With a deep passion for prayer and an unwavering commitment to holiness, he leads the flock of RCCG Hall of Faith into experiencing the daily miracles and sovereignty of God.",
+    "Pastor Bayo Omojola is a visionary leader called to empower generations and build faith in the heart of people. With a deep passion for prayer and an unwavering commitment to holiness, he leads the flock of RCCG Hall of Faith into experiencing the daily miracles and sovereignty of God.",
   pastorQuote:
     "God is not looking for gold vessels or silver vessels; He is looking for yielded vessels that will move when He moves.",
   statsSouls: 1200,
@@ -102,24 +102,24 @@ const DEFAULT_CONTENT: SiteContent = {
   sundayTime: "8:00 AM",
   wednesdayTime: "Wednesday 6:00 PM",
   fridayTime: "Friday 6:00 PM",
-  pastorName: "Pastor Abraham Okoye",
-  pastorImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200",
+  pastorName: "PASTOR BAYO OMOJOLA",
+  pastorImage: "/pastor.jpg",
 };
 
 const DEFAULT_GALLERY: GalleryItem[] = [
-  { id: "g1", src: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=1200", title: "Worship Moments", cat: "Worship" },
-  { id: "g2", src: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1200", title: "Community Outreach", cat: "Outreach" },
-  { id: "g3", src: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1200", title: "Choir Ministration", cat: "Choir" },
-  { id: "g4", src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200", title: "Youth Conference", cat: "Youth" },
-  { id: "g5", src: "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=1200", title: "Sunday Fellowship", cat: "Worship" },
-  { id: "g6", src: "https://images.unsplash.com/photo-1489641493513-ba4ee84ccea9?q=80&w=1200", title: "Bible Study Fellowship", cat: "Bible" },
+  { id: "g1", src: "/gallery/hof-church.png", title: "RCCG Hall of Faith", cat: "Worship" },
+  { id: "g2", src: "/gallery/childrens-day.png", title: "Children's Ministration", cat: "Youth" },
+  { id: "g3", src: "/gallery/teenager.png", title: "Teens & Youth Fellowship", cat: "Youth" },
+  { id: "g4", src: "/gallery/choir.png", title: "Voice of Faith Choir", cat: "Choir" },
+  { id: "g5", src: "/gallery/women-of-faith.png", title: "Women of Faith Fellowship", cat: "Worship" },
+  { id: "g6", src: "/gallery/childrens-day.png", title: "Youth Cultural Celebration", cat: "Youth" },
 ];
 
 const DEFAULT_SERMONS: SermonItem[] = [
   {
     id: "s1",
     title: "Unshakable Faith in Trying Times",
-    speaker: "Pastor Abraham Okoye",
+    speaker: "PASTOR BAYO OMOJOLA",
     date: "June 21, 2026",
     embed: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     category: "Faith",
@@ -127,7 +127,7 @@ const DEFAULT_SERMONS: SermonItem[] = [
   {
     id: "s2",
     title: "The Covenant of Worship",
-    speaker: "Pastor Abraham Okoye",
+    speaker: "PASTOR BAYO OMOJOLA",
     date: "June 14, 2026",
     embed: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     category: "Worship",
@@ -135,7 +135,7 @@ const DEFAULT_SERMONS: SermonItem[] = [
   {
     id: "s3",
     title: "Understanding Kingdom Influence",
-    speaker: "Pastor Abraham Okoye",
+    speaker: "PASTOR BAYO OMOJOLA",
     date: "June 07, 2026",
     embed: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     category: "Influence",
@@ -223,7 +223,7 @@ export default function AdminDashboard() {
 
   /* ── Sermons (committed + new-form) ── */
   const [sermons, setSermons] = useState<SermonItem[]>(DEFAULT_SERMONS);
-  const [newSermon, setNewSermon] = useState({ title: "", speaker: "Pastor Abraham Okoye", date: "", embed: "", category: "Faith" });
+  const [newSermon, setNewSermon] = useState({ title: "", speaker: "PASTOR BAYO OMOJOLA", date: "", embed: "", category: "Faith" });
 
   const [dragOverGallery, setDragOverGallery] = useState(false);
   const [dragOverPastor, setDragOverPastor] = useState(false);
@@ -318,43 +318,83 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const loadFromFirestore = async () => {
+      // 1. Prayers
       try {
-        // Prayers
         const prayersSnap = await getDoc(doc(db, "site", "prayers"));
         if (prayersSnap.exists()) setPrayers(prayersSnap.data().items || []);
+      } catch (error) {
+        console.warn("Failed to load prayers from Firestore:", error);
+      }
 
-        // Events
+      // 2. Events
+      try {
         const eventsSnap = await getDoc(doc(db, "site", "events"));
         if (eventsSnap.exists()) setEvents(eventsSnap.data().items || []);
+      } catch (error) {
+        console.warn("Failed to load events from Firestore:", error);
+      }
 
-        // Site Content
+      // 3. Site Content
+      try {
         const contentSnap = await getDoc(doc(db, "site", "content"));
         if (contentSnap.exists()) {
           const parsed = contentSnap.data() as SiteContent;
           setSiteContent(parsed);
           syncDraftsFromContent(parsed);
         } else {
-          await setDoc(doc(db, "site", "content"), DEFAULT_CONTENT);
           syncDraftsFromContent(DEFAULT_CONTENT);
+          try {
+            await setDoc(doc(db, "site", "content"), DEFAULT_CONTENT);
+          } catch (writeErr) {
+            console.warn("Failed to write default content to Firestore:", writeErr);
+          }
         }
+      } catch (error) {
+        console.warn("Failed to load site content from Firestore, using defaults:", error);
+        syncDraftsFromContent(DEFAULT_CONTENT);
+      }
 
-        // Gallery
+      // 4. Gallery
+      try {
         const gallerySnap = await getDoc(doc(db, "site", "gallery"));
-        if (gallerySnap.exists()) {
-          setGallery(gallerySnap.data().items || []);
+        if (gallerySnap.exists() && Array.isArray(gallerySnap.data().items)) {
+          const items = gallerySnap.data().items as GalleryItem[];
+          const hasUnsplash = items.some((item) => item.src && item.src.includes("unsplash.com"));
+          if (hasUnsplash) {
+            setGallery(DEFAULT_GALLERY);
+            try {
+              await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+            } catch (wErr) {
+              console.warn("Failed to update legacy gallery in Firestore:", wErr);
+            }
+          } else {
+            setGallery(items);
+          }
         } else {
-          await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+          try {
+            await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+          } catch (writeErr) {
+            console.warn("Failed to write default gallery to Firestore:", writeErr);
+          }
         }
+      } catch (error) {
+        console.warn("Failed to load gallery from Firestore:", error);
+      }
 
-        // Sermons
+      // 5. Sermons
+      try {
         const sermonsSnap = await getDoc(doc(db, "site", "sermons"));
         if (sermonsSnap.exists()) {
           setSermons(sermonsSnap.data().items || []);
         } else {
-          await setDoc(doc(db, "site", "sermons"), { items: DEFAULT_SERMONS });
+          try {
+            await setDoc(doc(db, "site", "sermons"), { items: DEFAULT_SERMONS });
+          } catch (writeErr) {
+            console.warn("Failed to write default sermons to Firestore:", writeErr);
+          }
         }
       } catch (error) {
-        console.error("Error loading from Firestore:", error);
+        console.warn("Failed to load sermons from Firestore:", error);
       }
 
       // Auth
@@ -503,7 +543,7 @@ export default function AdminDashboard() {
     const updated = [item, ...sermons]; // Newest first
     setSermons(updated);
     await setDoc(doc(db, "site", "sermons"), { items: updated });
-    setNewSermon({ title: "", speaker: "Pastor Abraham Okoye", date: "", embed: "", category: "Faith" });
+    setNewSermon({ title: "", speaker: "PASTOR BAYO OMOJOLA", date: "", embed: "", category: "Faith" });
     showToast("Sermon/Video added successfully!");
   };
 
@@ -564,7 +604,7 @@ export default function AdminDashboard() {
               Sign In
             </button>
           </form>
-          <p className="text-[10px] text-white/30">Default passcode is admin</p>
+          <p className="text-[10px] text-white/30">Contact your administrator for access credentials.</p>
         </div>
       </div>
     );

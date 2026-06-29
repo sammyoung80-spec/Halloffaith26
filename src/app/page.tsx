@@ -88,19 +88,19 @@ const TESTIMONIALS = [
 ];
 
 const DEFAULT_GALLERY = [
-  { id: "g1", src: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=1200", title: "Worship Moments", cat: "Worship" },
-  { id: "g2", src: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1200", title: "Community Outreach", cat: "Outreach" },
-  { id: "g3", src: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1200", title: "Choir Ministration", cat: "Choir" },
-  { id: "g4", src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200", title: "Youth Conference", cat: "Youth" },
-  { id: "g5", src: "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=1200", title: "Sunday Fellowship", cat: "Worship" },
-  { id: "g6", src: "https://images.unsplash.com/photo-1489641493513-ba4ee84ccea9?q=80&w=1200", title: "Bible Study Fellowship", cat: "Bible" },
+  { id: "g1", src: "/gallery/hof-church.png", title: "RCCG Hall of Faith", cat: "Worship" },
+  { id: "g2", src: "/gallery/childrens-day.png", title: "Children's Ministration", cat: "Youth" },
+  { id: "g3", src: "/gallery/teenager.png", title: "Teens & Youth Fellowship", cat: "Youth" },
+  { id: "g4", src: "/gallery/choir.png", title: "Voice of Faith Choir", cat: "Choir" },
+  { id: "g5", src: "/gallery/women-of-faith.png", title: "Women of Faith Fellowship", cat: "Worship" },
+  { id: "g6", src: "/gallery/childrens-day.png", title: "Youth Cultural Celebration", cat: "Youth" },
 ];
 
 const DEFAULT_SERMONS = [
   {
     id: "s1",
     title: "Unshakable Faith in Trying Times",
-    speaker: "Pastor Abraham Okoye",
+    speaker: "PASTOR BAYO OMOJOLA",
     date: "June 21, 2026",
     embed: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     category: "Faith",
@@ -108,7 +108,7 @@ const DEFAULT_SERMONS = [
   {
     id: "s2",
     title: "The Covenant of Worship",
-    speaker: "Pastor Abraham Okoye",
+    speaker: "PASTOR BAYO OMOJOLA",
     date: "June 14, 2026",
     embed: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     category: "Worship",
@@ -116,7 +116,7 @@ const DEFAULT_SERMONS = [
   {
     id: "s3",
     title: "Understanding Kingdom Influence",
-    speaker: "Pastor Abraham Okoye",
+    speaker: "PASTOR BAYO OMOJOLA",
     date: "June 07, 2026",
     embed: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     category: "Influence",
@@ -147,7 +147,7 @@ const DEFAULT_CONTENT = {
   aboutParagraph: "Hall of Faith is a vibrant, family-oriented parish of The Redeemed Christian Church of God dedicated to raising believers who walk in faith, purpose, holiness, and kingdom influence. We believe in the potency of the Word, the intimacy of Worship, and the prevailing power of Prayer.",
   mission: "To bring people into a life-transforming relationship with Jesus Christ, equipping them to discover and manifest their divine destiny.",
   vision: "Building a global community of strong believers empowered to impact generations through faith, excellence, holiness, and community service.",
-  pastorBio: "Pastor Abraham Okoye is a visionary leader called to empower generations and build faith in the heart of people. With a deep passion for prayer and an unwavering commitment to holiness, he leads the flock of RCCG Hall of Faith into experiencing the daily miracles and sovereignty of God.",
+  pastorBio: "Pastor Bayo Omojola is a visionary leader called to empower generations and build faith in the heart of people. With a deep passion for prayer and an unwavering commitment to holiness, he leads the flock of RCCG Hall of Faith into experiencing the daily miracles and sovereignty of God.",
   pastorQuote: "God is not looking for gold vessels or silver vessels; He is looking for yielded vessels that will move when He moves.",
   statsSouls: 1200,
   statsMembers: 850,
@@ -156,8 +156,8 @@ const DEFAULT_CONTENT = {
   sundayTime: "8:00 AM",
   wednesdayTime: "Wednesday 6:00 PM",
   fridayTime: "Friday 6:00 PM",
-  pastorName: "Pastor Abraham Okoye",
-  pastorImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200",
+  pastorName: "PASTOR BAYO OMOJOLA",
+  pastorImage: "/pastor.jpg",
 };
 
 interface EventItem {
@@ -315,64 +315,111 @@ export default function ChurchWebsite() {
   // Load and sync dynamic Events, Site Content, Gallery & Sermons state
   useEffect(() => {
     const loadFromFirestore = async () => {
+      const defaultEvents = [
+        {
+          id: "1",
+          title: "Supernatural Turnaround Conference",
+          date: "2026-07-12T08:00:00",
+          desc: "Three days of prophetic declarations, deliverance, and restoration. Join us!",
+          type: "Conference",
+        },
+        {
+          id: "2",
+          title: "Worship & Miracle Night",
+          date: "2026-07-24T18:00:00",
+          desc: "An atmospheric night of pure worship, healing, and miraculous encounters with Jesus.",
+          type: "Special Service",
+        },
+        {
+          id: "3",
+          title: "Ojodu Berger Mega Crusade",
+          date: "2026-08-15T17:00:00",
+          desc: "Reaching Ojodu-Berger with the light of the Gospel. Lives will be transformed.",
+          type: "Crusade",
+        },
+      ];
+
+      // 1. Events
       try {
-        // Events
         const eventsSnap = await getDoc(doc(db, "site", "events"));
         if (eventsSnap.exists()) {
           setEvents(eventsSnap.data().items || []);
         } else {
-          const defaultEvents = [
-            {
-              id: "1",
-              title: "Supernatural Turnaround Conference",
-              date: "2026-07-12T08:00:00",
-              desc: "Three days of prophetic declarations, deliverance, and restoration. Join us!",
-              type: "Conference",
-            },
-            {
-              id: "2",
-              title: "Worship & Miracle Night",
-              date: "2026-07-24T18:00:00",
-              desc: "An atmospheric night of pure worship, healing, and miraculous encounters with Jesus.",
-              type: "Special Service",
-            },
-            {
-              id: "3",
-              title: "Ojodu Berger Mega Crusade",
-              date: "2026-08-15T17:00:00",
-              desc: "Reaching Ojodu-Berger with the light of the Gospel. Lives will be transformed.",
-              type: "Crusade",
-            },
-          ];
           setEvents(defaultEvents);
-          await setDoc(doc(db, "site", "events"), { items: defaultEvents });
+          try {
+            await setDoc(doc(db, "site", "events"), { items: defaultEvents });
+          } catch (writeErr) {
+            console.warn("Failed to write default events to Firestore:", writeErr);
+          }
         }
+      } catch (error) {
+        console.error("Failed to load events from Firestore, using fallback:", error);
+        setEvents(defaultEvents);
+      }
 
-        // Site Content
+      // 2. Site Content
+      try {
         const contentSnap = await getDoc(doc(db, "site", "content"));
         if (contentSnap.exists()) {
           setSiteContent(contentSnap.data() as typeof DEFAULT_CONTENT);
         } else {
-          await setDoc(doc(db, "site", "content"), DEFAULT_CONTENT);
+          setSiteContent(DEFAULT_CONTENT);
+          try {
+            await setDoc(doc(db, "site", "content"), DEFAULT_CONTENT);
+          } catch (writeErr) {
+            console.warn("Failed to write default site content to Firestore:", writeErr);
+          }
         }
+      } catch (error) {
+        console.error("Failed to load site content from Firestore, using fallback:", error);
+        setSiteContent(DEFAULT_CONTENT);
+      }
 
-        // Gallery
+      // 3. Gallery
+      try {
         const gallerySnap = await getDoc(doc(db, "site", "gallery"));
-        if (gallerySnap.exists()) {
-          setGalleryItems(gallerySnap.data().items || []);
+        if (gallerySnap.exists() && Array.isArray(gallerySnap.data().items)) {
+          const items = gallerySnap.data().items as GalleryItem[];
+          const hasUnsplash = items.some((item) => item.src && item.src.includes("unsplash.com"));
+          if (hasUnsplash) {
+            setGalleryItems(DEFAULT_GALLERY);
+            try {
+              await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+            } catch (wErr) {
+              console.warn("Failed to update legacy gallery in Firestore:", wErr);
+            }
+          } else {
+            setGalleryItems(items);
+          }
         } else {
-          await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+          setGalleryItems(DEFAULT_GALLERY);
+          try {
+            await setDoc(doc(db, "site", "gallery"), { items: DEFAULT_GALLERY });
+          } catch (writeErr) {
+            console.warn("Failed to write default gallery to Firestore:", writeErr);
+          }
         }
+      } catch (error) {
+        console.error("Failed to load gallery from Firestore, using fallback:", error);
+        setGalleryItems(DEFAULT_GALLERY);
+      }
 
-        // Sermons
+      // 4. Sermons
+      try {
         const sermonsSnap = await getDoc(doc(db, "site", "sermons"));
         if (sermonsSnap.exists()) {
           setSermonsList(sermonsSnap.data().items || []);
         } else {
-          await setDoc(doc(db, "site", "sermons"), { items: DEFAULT_SERMONS });
+          setSermonsList(DEFAULT_SERMONS);
+          try {
+            await setDoc(doc(db, "site", "sermons"), { items: DEFAULT_SERMONS });
+          } catch (writeErr) {
+            console.warn("Failed to write default sermons to Firestore:", writeErr);
+          }
         }
       } catch (error) {
-        console.error("Error loading from Firestore:", error);
+        console.error("Failed to load sermons from Firestore, using fallback:", error);
+        setSermonsList(DEFAULT_SERMONS);
       }
     };
 
@@ -422,7 +469,7 @@ export default function ChurchWebsite() {
       prayers.push(newRequest);
       await setDoc(doc(db, "site", "prayers"), { items: prayers });
     } catch (error) {
-      console.error("Error saving prayer:", error);
+      console.warn("Prayer request could not be saved to Firestore (offline or API disabled). Request was:", newRequest, error);
     }
 
     setPrayerSuccess(true);
@@ -754,8 +801,8 @@ export default function ChurchWebsite() {
               {/* Fallback image representing an elegant biography profile */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={siteContent.pastorImage || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200"}
-                alt={siteContent.pastorName || "Pastor Abraham Okoye"}
+                src={siteContent.pastorImage || "/pastor.jpg"}
+                alt={siteContent.pastorName || "PASTOR BAYO OMOJOLA"}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#07122D] via-transparent to-transparent opacity-85" />
@@ -764,7 +811,7 @@ export default function ChurchWebsite() {
                   Senior Pastor
                 </p>
                 <h3 className="text-2xl font-bold font-cinzel text-white">
-                  {siteContent.pastorName || "Pastor Abraham Okoye"}
+                  {siteContent.pastorName || "PASTOR BAYO OMOJOLA"}
                 </h3>
               </div>
             </div>
@@ -798,7 +845,7 @@ export default function ChurchWebsite() {
 
             <div className="pt-4">
               <span className="text-[#D4AF37] font-cinzel text-2xl tracking-widest">
-                {siteContent.pastorName ? siteContent.pastorName.replace(/^Pastor\s+/i, "") : "Abraham Okoye"}
+                {siteContent.pastorName ? siteContent.pastorName.replace(/^Pastor\s+/i, "") : "Bayo Omojola"}
               </span>
               <p className="text-xs text-white/50 uppercase tracking-widest">
                 Signature of Grace
@@ -1174,11 +1221,38 @@ export default function ChurchWebsite() {
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-[#07122D]/95 backdrop-blur-md flex items-center justify-center p-4"
             >
+              {/* Close button */}
               <button
                 onClick={() => setLightboxIndex(null)}
-                className="absolute top-6 right-6 text-white text-3xl hover:text-[#D4AF37] transition-colors"
+                className="absolute top-6 right-6 text-white text-3xl hover:text-[#D4AF37] transition-colors z-10"
               >
                 <FaTimes />
+              </button>
+
+              {/* Prev arrow */}
+              <button
+                onClick={() =>
+                  setLightboxIndex((prev) =>
+                    prev !== null ? (prev - 1 + filteredGallery.length) % filteredGallery.length : 0
+                  )
+                }
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-panel border border-[#D4AF37]/30 flex items-center justify-center text-white text-xl hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all z-10"
+                aria-label="Previous image"
+              >
+                &#8592;
+              </button>
+
+              {/* Next arrow */}
+              <button
+                onClick={() =>
+                  setLightboxIndex((prev) =>
+                    prev !== null ? (prev + 1) % filteredGallery.length : 0
+                  )
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-panel border border-[#D4AF37]/30 flex items-center justify-center text-white text-xl hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all z-10"
+                aria-label="Next image"
+              >
+                &#8594;
               </button>
 
               <div className="relative max-w-4xl w-full aspect-[4/3] flex items-center justify-center">
@@ -1197,6 +1271,9 @@ export default function ChurchWebsite() {
                 <h3 className="text-white text-2xl font-bold font-cinzel">
                   {filteredGallery[lightboxIndex].title}
                 </h3>
+                <p className="text-white/40 text-xs mt-1">
+                  {lightboxIndex + 1} / {filteredGallery.length}
+                </p>
               </div>
             </motion.div>
           )}
@@ -1256,17 +1333,35 @@ export default function ChurchWebsite() {
             </AnimatePresence>
           </div>
 
-          {/* Dots Indicator */}
-          <div className="flex justify-center gap-2">
-            {TESTIMONIALS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveTestimonial(i)}
-                className={`w-3.5 h-3.5 rounded-full border transition-all ${
-                  activeTestimonial === i ? "bg-[#D4AF37] border-[#D4AF37]" : "border-[#D4AF37]/30 hover:border-[#D4AF37]"
-                }`}
-              />
-            ))}
+          {/* Testimonial nav: arrows + dots */}
+          <div className="flex items-center justify-center gap-4">
+            <button
+              onClick={() => setActiveTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+              className="w-10 h-10 rounded-full glass-panel border border-[#D4AF37]/30 flex items-center justify-center text-white hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all text-lg"
+              aria-label="Previous testimony"
+            >
+              &#8592;
+            </button>
+
+            <div className="flex gap-2">
+              {TESTIMONIALS.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveTestimonial(i)}
+                  className={`w-3.5 h-3.5 rounded-full border transition-all ${
+                    activeTestimonial === i ? "bg-[#D4AF37] border-[#D4AF37]" : "border-[#D4AF37]/30 hover:border-[#D4AF37]"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={() => setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length)}
+              className="w-10 h-10 rounded-full glass-panel border border-[#D4AF37]/30 flex items-center justify-center text-white hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all text-lg"
+              aria-label="Next testimony"
+            >
+              &#8594;
+            </button>
           </div>
         </div>
       </section>
@@ -1575,33 +1670,44 @@ export default function ChurchWebsite() {
             </div>
           </div>
 
-          {/* Map Mockup */}
+          {/* Google Maps Embed */}
           <div className="glass-panel p-4 rounded-3xl border border-[#D4AF37]/20 relative w-full aspect-video overflow-hidden shadow-2xl">
-            {/* Using interactive dynamic styled maps from Mapbox/Leaflet fallback (SVG mockup for perfect elegance) */}
-            <div className="absolute inset-0 bg-[#07122D] flex flex-col items-center justify-center p-6 text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-[#D4AF37]/20 flex items-center justify-center text-xl text-[#D4AF37]">
-                <FaMapMarkerAlt />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-lg font-bold font-cinzel text-white">
-                  37B, Gbadamosi Street, Ojodu-Berger
-                </h4>
-                <p className="text-xs text-white/60">
-                  Adjacent to the Health Center, Lagos State, Nigeria
-                </p>
-              </div>
-              <a
-                href="https://maps.google.com/?q=37B,+Gbadamosi+Street,+Ojodu-Berger,+Lagos"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-2.5 bg-[#D4AF37] hover:bg-[#FFF099] text-[#07122D] rounded-full font-bold uppercase tracking-wider text-xs transition-colors"
-              >
-                Open Google Maps
-              </a>
-            </div>
+            <iframe
+              title="RCCG Hall of Faith Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.5!2d3.3591!3d6.6520!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b93c56c0e0001%3A0x0!2sGbadamosi+St%2C+Ojodu%2C+Lagos!5e0!3m2!1sen!2sng!4v1700000000000!5m2!1sen!2sng"
+              width="100%"
+              height="100%"
+              className="absolute inset-0 w-full h-full border-0 rounded-3xl"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            {/* Overlay button to open in full Maps */}
+            <a
+              href="https://maps.google.com/?q=37B+Gbadamosi+Street+Ojodu-Berger+Lagos"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-2 bg-[#07122D]/90 backdrop-blur-sm text-[#D4AF37] border border-[#D4AF37]/40 rounded-full font-bold uppercase tracking-wider text-xs hover:bg-[#D4AF37] hover:text-[#07122D] transition-all shadow-lg z-10"
+            >
+              <span className="flex items-center gap-2"><FaMapMarkerAlt /> Open in Google Maps</span>
+            </a>
           </div>
         </div>
       </section>
+
+      {/* ------------------ FLOATING WHATSAPP BUTTON ------------------ */}
+      <a
+        href="https://wa.me/2348136337124"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
+        className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-2xl shadow-[#25D366]/40 hover:bg-[#20bb5a] hover:scale-110 transition-all duration-300 group"
+      >
+        <FaWhatsapp className="text-white text-2xl" />
+        <span className="absolute right-16 bg-[#07122D] text-white text-xs font-semibold px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[#D4AF37]/20 shadow-lg">
+          Chat with us
+        </span>
+      </a>
 
       {/* ------------------ FOOTER ------------------ */}
       <footer className="glass-panel border-t border-[#D4AF37]/20 pt-16 pb-8 px-6">
